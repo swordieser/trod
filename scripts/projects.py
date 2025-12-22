@@ -4,7 +4,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+import pandas as pd
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -29,7 +30,7 @@ class Project:
     money_needed: int
     main_text: str | None
     text_about: str | None
-    tag: str
+    # tag: str
 
     @property
     def percentage(self):
@@ -65,7 +66,7 @@ def _process_money_bar(s: str):
     ))
 
 
-def get_project_information_by_link(chrome_driver: WebDriver, link: str, project_tag: str) -> Project:
+def get_project_information_by_link(chrome_driver: WebDriver, link: str, project_tag: str = "") -> Project:
     chrome_driver.get(link)
     driver_wait(chrome_driver)
 
@@ -89,7 +90,7 @@ def get_project_information_by_link(chrome_driver: WebDriver, link: str, project
         money_needed=money_needed,
         main_text=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'project-box_mainText')]").text,
         text_about=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'about-project_about')]").text,
-        tag=project_tag
+        # tag=project_tag
     )
 
     return project
@@ -122,3 +123,23 @@ def collect_projects():
             projects.append(get_project_information_by_link(driver, link, tag))
 
     return projects
+
+
+def collect_projects_by_links(links: list[str]):
+    result = []
+    driver = setup_driver()
+
+    for link in links:
+        result.append(get_project_information_by_link(driver, link))
+
+    return result
+
+
+def dump_projects_to_csv(links: list[str]):
+    projects = collect_projects_by_links(links)
+
+    df = pd.DataFrame([asdict(project) for project in projects])
+
+    df_project = df[["name", "fund_name", "city", "end_date", "money_collected", "money_needed", "main_text", "text_about"]]
+
+    df_project.to_csv('project.csv', encoding='utf-8')
