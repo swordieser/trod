@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Вход</h2>
+
+{% if message %}
+<div class="flash-error">
+    {{ message }}
+</div>
+{% endif %}
+
+<!-- action="/auth/login"-->
+<form method="post">
+    <div>
+        <label>Имя пользователя</label><br>
+        <input type="text" name="username" required>
+    </div>
+
+    <div>
+        <label>Пароль</label><br>
+        <input type="password" name="password" required>
+    </div>
+
+    <button type="submit">Войти</button>
+</form>
+
+<p>
+    Нет аккаунта?
+    <a href="/auth/register">Зарегистрироваться</a>
+</p>
+{% endblock %}

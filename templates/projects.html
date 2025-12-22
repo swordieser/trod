@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Проекты</h2>
+
+<form method="get">
+    <select name="fund_id">
+        <option value="">Все фонды</option>
+        {% for fund in funds %}
+        <option value="{{ fund.id }}"
+            {% if fund.id == selected_fund %}selected{% endif %}>
+            {{ fund.name }}
+        </option>
+        {% endfor %}
+    </select>
+    <button type="submit">Фильтр</button>
+</form>
+
+<ul>
+{% for project in projects %}
+    <li>
+        <a href="/projects/{{ project.id }}">
+            {{ project.title }}
+        </a><br>
+        Собрано {{ project.collected_amount }} / {{ project.goal_amount }}
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

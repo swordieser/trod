@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Создать фонд</h2>
+
+<form method="post">
+    <div>
+        <label>Название фонда</label><br>
+        <input type="text" name="name" required>
+    </div>
+
+    <div>
+        <label>Описание</label><br>
+        <textarea name="description" rows="4" required></textarea>
+    </div>
+
+    <div>
+        <label>Телефон</label><br>
+        <input type="text" name="phone">
+    </div>
+
+    <div>
+        <label>Ссылка</label><br>
+        <input type="text" name="url">
+    </div>
+
+    <div>
+        <label>Теги</label><br>
+        <label><input type="checkbox" name="tags" value="Животные">Животные</label><br>
+        <label><input type="checkbox" name="tags" value="Культура">Культура</label><br>
+        <label><input type="checkbox" name="tags" value="Природа">Природа</label>
+    </div>
+
+    <button type="submit">Создать фонд</button>
+</form>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Создать проект</h2>
+
+<form method="post" action="/admin/projects/new">
+    <div>
+        <label>Название проекта</label><br>
+        <input type="text" name="title" required>
+    </div>
+
+    <div>
+        <label>Описание</label><br>
+        <textarea name="description" rows="4" required></textarea>
+    </div>
+
+    <div>
+        <label>Цель сбора</label><br>
+        <input type="number" name="goal_amount" min="1" required>
+    </div>
+
+    <div>
+        <label>Фонд</label><br>
+        <select name="fund_id" required>
+            <option value="">— выберите фонд —</option>
+            {% for fund in funds %}
+            <option value="{{ fund.id }}">
+                {{ fund.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit">Создать проект</button>
+</form>
+{% endblock %}

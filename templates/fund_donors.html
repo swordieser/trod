@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Донатеры фонда {{ fund.name }}</h2>
+
+<ul>
+{% for d in donations %}
+    <li>
+        {{ d.user.username }} — {{ d.amount }} ₽
+        ({{ d.created_at.strftime("%d.%m.%Y %H:%M") }})
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: charity_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/charity.db
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+volumes:
+  sqlite_data:

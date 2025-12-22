@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <title>Charity Aggregator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set user = current_user(request) %}
+<header>
+    <h1><a href="/">Charity Aggregator</a></h1>
+    <nav>
+        <a href="/funds/">Фонды</a>
+        <a href="/projects/">Проекты</a>
+        {% if user and user.role.value == "admin" %}
+        <hr>
+        <strong>Администрирование</strong><br>
+        <a href="/admin/funds/new">Создать фонд</a><br>
+        <a href="/admin/projects/new">Создать проект</a>
+        <hr>
+        {% endif %}
+    </nav>
+</header>
+<main>
+    {% if user %}
+    Привет, {{ user.username }} |
+    <a href="/my-donations">Мои пожертвования</a> |
+    <a href="/auth/logout">Выйти</a>
+    {% else %}
+    <a href="/auth/login">Войти</a>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

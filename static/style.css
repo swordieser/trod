@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    margin-right: 10px;
+}
+
+progress {
+    width: 100%;
+    height: 20px;
+}
+
+.flash-error {
+    background: #ffe5e5;
+    border: 1px solid #ff4d4d;
+    color: #a60000;
+    padding: 10px;
+    margin-bottom: 15px;
+}

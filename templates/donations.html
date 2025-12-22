@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Мои пожертвования</h2>
+
+{% if donations %}
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Фонд</th>
+            <th>Проект</th>
+            <th>Сумма</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in donations %}
+        <tr>
+            <td>{{ d.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+            <td>{{ d.fund.name }}</td>
+            <td>{{ d.project.title }}</td>
+            <td>{{ d.amount }} ₽</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Вы ещё не делали пожертвований.</p>
+{% endif %}
+
+{% endblock %}
