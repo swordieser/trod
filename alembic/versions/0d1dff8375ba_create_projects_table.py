@@ -27,6 +27,9 @@ def upgrade():
         sa.Column("description", sa.Text),
         sa.Column("goal_amount", sa.Integer),
         sa.Column("collected_amount", sa.Integer, default=0),
+        sa.Column("city", sa.String, nullable=True),
+        sa.Column("end_date", sa.String, nullable=True),
+        sa.Column("main_text", sa.String, nullable=True),
         sa.Column(
             "fund_id",
             sa.Integer,

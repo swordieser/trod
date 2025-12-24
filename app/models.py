@@ -16,13 +16,23 @@ class FundTagEnum(enum.Enum):
     ANIMALS = "Животные"
     CULTURE = "Культура"
     NATURE = "Природа"
+    CHILDREN = "Дети"
+    ADULTS = "Взрослые"
+    ELDERS = "Пожилые"
+
+
+class Tags(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True)
+    tag = Column(String, nullable=False)
 
 
 class FundTags(Base):
     __tablename__ = "fund_tags"
 
     fund_id = Column(ForeignKey("funds.id"), primary_key=True)
-    tag = Column(Enum(FundTagEnum), primary_key=True)
+    tag_id = Column(ForeignKey("tags.id"), primary_key=True)
 
 
 class Fund(Base):
@@ -51,6 +61,9 @@ class Project(Base):
     description = Column(Text)
     goal_amount = Column(Integer)
     collected_amount = Column(Integer, default=0)
+    city = Column(String, nullable=True)
+    end_date = Column(String, nullable=True)
+    main_text = Column(String, nullable=True)
 
     fund_id = Column(Integer, ForeignKey("funds.id"))
     fund = relationship("Fund", back_populates="projects")

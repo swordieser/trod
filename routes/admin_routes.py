@@ -46,7 +46,7 @@ def fund_create(
         db.execute(
             sa.insert(FundTags).values(
                 fund_id=fund.id,
-                tag=FundTagEnum(tag),
+                tag=tag,
             )
         )
 

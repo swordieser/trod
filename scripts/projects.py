@@ -74,7 +74,7 @@ def get_project_information_by_link(chrome_driver: WebDriver, link: str, project
     city, end_date = chrome_driver.find_element(By.XPATH, "//div[contains(@class,'project-box_itemInfo')]").text.split(
         "\n")
     name = div_main_content.find_element(By.TAG_NAME, "h1").text
-    fund_name = div_main_content.find_element(By.TAG_NAME, "a").text
+    fund_name = div_main_content.find_element(By.XPATH, "div/a").text
 
     money_bar = chrome_driver.find_element(By.XPATH, "//span[contains(text(),'Собранная сумма')]")
     chrome_driver.execute_script("arguments[0].setAttribute('class', '')", money_bar)
@@ -88,8 +88,8 @@ def get_project_information_by_link(chrome_driver: WebDriver, link: str, project
         end_date=end_date,
         money_collected=money_collected,
         money_needed=money_needed,
-        main_text=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'project-box_mainText')]").text,
-        text_about=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'about-project_about')]").text,
+        main_text=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'project-box_mainText')]").text.replace("\n", " "),
+        text_about=chrome_driver.find_element(By.XPATH, "//div[contains(@class,'about-project_about')]").text.replace("\n", " "),
         # tag=project_tag
     )
 
@@ -135,11 +135,25 @@ def collect_projects_by_links(links: list[str]):
     return result
 
 
-def dump_projects_to_csv(links: list[str]):
+def dump_projects_to_csv(funds: list):
+    links = [project_link for fund in funds for project_link in fund.projects]
     projects = collect_projects_by_links(links)
 
     df = pd.DataFrame([asdict(project) for project in projects])
 
-    df_project = df[["name", "fund_name", "city", "end_date", "money_collected", "money_needed", "main_text", "text_about"]]
+    df_funds = pd.DataFrame([asdict(fund) for fund in funds])
 
-    df_project.to_csv('project.csv', encoding='utf-8')
+    df_project = df[["name", "fund_name", "city", "end_date", "money_collected", "money_needed", "main_text", "text_about"]]
+    df_project.drop_duplicates(inplace=True)
+
+    for idx, row in df_funds.iterrows():
+        df_project.loc[df_project['fund_name'] == row["name"], 'fund_name'] = idx
+
+
+    df_project.rename(columns={"name": "title", "money_needed": "goal_amount", "money_collected": "collected_amount",
+                               "text_about": "description", "fund_name": "fund_id"}, inplace=True)
+
+    df_project = df_project[["title", "description", "goal_amount", "collected_amount", "city", "end_date", "main_text", "fund_id"]]
+
+
+    df_project.to_csv('projects.csv', encoding='utf-8', index_label="id")

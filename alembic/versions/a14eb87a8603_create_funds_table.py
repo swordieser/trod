@@ -10,13 +10,11 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
 revision: str = 'a14eb87a8603'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
-
 
 
 def upgrade():
@@ -31,23 +29,15 @@ def upgrade():
     )
 
     op.create_table(
+        "tags",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("tag", sa.String, nullable=False),
+    )
+
+    op.create_table(
         "fund_tags",
-        sa.Column(
-            "fund_id",
-            sa.Integer,
-            sa.ForeignKey("funds.id"),
-            primary_key=True,
-        ),
-        sa.Column(
-            "tag",
-            sa.Enum(
-                "животные",
-                "культура",
-                "природа",
-                name="fundtag",
-            ),
-            primary_key=True,
-        ),
+        sa.Column("fund_id", sa.Integer),
+        sa.Column("tag_id", sa.Integer),
     )
 
 

@@ -1,15 +1,23 @@
 from sqlalchemy.orm import Session
-from app.models import Fund, Project, Donation, FundTags, FundTagEnum
+from app.models import Fund, Project, Donation, FundTags, Tags
 
 
 def get_funds(db: Session, tag: str | None = None):
     query = db.query(Fund)
 
     if tag:
-        query = query.join(FundTags).filter(
-            FundTags.tag == FundTagEnum(tag)
+        query = (
+            query
+            .join(FundTags, onclause=(Fund.id == FundTags.fund_id))
+            .join(Tags, onclause=(FundTags.tag_id == Tags.id))
+            .filter(Tags.tag == tag)
         )
 
+    return query.all()
+
+
+def get_tags(db: Session):
+    query = db.query(Tags)
     return query.all()
 
 

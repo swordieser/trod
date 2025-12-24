@@ -1,9 +1,6 @@
-from projects import setup_driver, driver_wait
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from projects import setup_driver, driver_wait, dump_projects_to_csv
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 import logging
 from dataclasses import dataclass, asdict
 import pandas as pd
@@ -13,6 +10,15 @@ logger = logging.getLogger(__file__)
 FUNDS_LINK = "https://dobro.mail.ru/sos/?recipient="
 FUNDS_TAGS = ["culture", "nature", "animals"]
 
+map_tag_to_id = {
+    "Животные": 0,
+    "Культура": 1,
+    "Природа": 2,
+    "Дети": 3,
+    "Взрослые": 4,
+    "Пожилые": 5
+}
+
 
 @dataclass
 class Fund:
@@ -21,7 +27,7 @@ class Fund:
     url: str | None
     tags: list[str]
     description: str
-    stats: str
+    total_collected: int
     projects: list[str]
 
 
@@ -86,7 +92,7 @@ def get_fund_information_by_link(chrome_driver: WebDriver, link: str, fund_tag: 
         url=fund_url,
         tags=fund_tags,
         description=fund_description,
-        stats=fund_stats[-1],
+        total_collected=int(fund_stats[-1].replace(" ₽ собрано на работу фонда", "").replace(" ", "")),
         projects=fund_projects
     )
 
@@ -125,11 +131,27 @@ def collect_funds():
 def dump_funds_to_csv(funds: list[Fund]):
     df = pd.DataFrame([asdict(fund) for fund in funds])
 
-    df_funds = df[["name", "description", "stats", "phone", "url"]]
+    df_funds: pd.DataFrame = df[["name", "description", "total_collected", "phone", "url"]]
     df_tags: pd.DataFrame = df[["name", "tags"]]
-    df_tags = df_tags.explode("tags")
 
-    df_funds.to_csv('funds.csv', encoding='utf-8')
-    df_tags.to_csv('funds_tags.csv', encoding='utf-8')
+    df_funds = df_funds.drop_duplicates(subset="name")
+    df_tags = df_tags.drop_duplicates(subset="name")
 
-dump_funds_to_csv(collect_funds())
+    for idx, row in df_funds.iterrows():
+        df_tags.loc[df_tags['name'] == row["name"], 'name'] = idx
+
+    df_tags.rename(columns={"name": "fund_id", "tags": "tag_id"}, inplace=True)
+    df_tags = df_tags.explode("tag_id")
+    df_tags["tag_id"] = df_tags["tag_id"].apply(lambda tag: map_tag_to_id[tag])
+
+    df_funds.to_csv('funds.csv', encoding='utf-8', index_label="id")
+    df_tags.to_csv('funds_tags.csv', encoding='utf-8', index=False)
+
+
+def collect_everything():
+    funds = collect_funds()
+    dump_funds_to_csv(funds)
+    dump_projects_to_csv(funds)
+
+
+collect_everything()
