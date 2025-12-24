@@ -14,9 +14,10 @@ router = APIRouter(prefix="/funds")
 @router.get("/", response_class=HTMLResponse)
 def get_funds(request: Request, db: Session = Depends(get_db), tag: str | None = None):
     funds = crud.get_funds(db, tag)
+    tags = crud.get_tags(db)
     return templates.TemplateResponse(
         "funds.html",
-        {"request": request, "funds": funds, "tags": FundTagEnum}
+        {"request": request, "funds": funds, "tags": tags, "selected_tag": tag}
     )
 
 

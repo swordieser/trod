@@ -23,7 +23,7 @@ def get_tags(db: Session):
 
 def get_projects(db: Session, fund_id: int | None = None):
     query = db.query(Project)
-    if fund_id:
+    if fund_id and fund_id != -1:
         query = query.filter(Project.fund_id == fund_id)
     return query.all()
 

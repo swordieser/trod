@@ -4,7 +4,7 @@
 
 <form method="get">
     <select name="fund_id">
-        <option value="">Все фонды</option>
+        <option value="-1">Все фонды</option>
         {% for fund in funds %}
         <option value="{{ fund.id }}"
             {% if fund.id == selected_fund %}selected{% endif %}>

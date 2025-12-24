@@ -7,8 +7,8 @@
         <option value="">Все</option>
         {% for t in tags %}
         <option value="{{ t.tag }}"
-                {% if selected_tag== t.tag %}selected{% endif %}>
-            {{ t.value }}
+                {% if selected_tag == t.tag %}selected{% endif %}>
+            {{ t.tag }}
         </option>
         {% endfor %}
     </select>
