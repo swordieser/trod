@@ -19,9 +19,19 @@
     {% for fund in funds %}
     <li>
         <strong>{{ fund.name }}</strong><br>
+
+        {% if fund.url  %}
+        Ссылка: {{ fund.url }}<br>
+        {% endif %}
+
+
+        {% if fund.url  %}
+        Номер телефона: {{ fund.phone }}<br>
+        {% endif %}
+
         {{ fund.description }}<br>
         Собрано: {{ fund.total_collected }}<br>
-        <a href="{{ fund.id }}/donors">Донатеры</a>
+        <a href="{{ fund.id }}/donors">Донатеры</a><br>
     </li>
     {% endfor %}
 </ul>
