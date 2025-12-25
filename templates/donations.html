@@ -1,31 +1,198 @@
 {% extends "base.html" %}
 
+{% block title %}Мои пожертвования | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Мои пожертвования</h2>
+<div class="donations-header">
+    <h2 style="font-size: 2rem; color: #2d3748; margin-bottom: 0.5rem;">Мои пожертвования</h2>
+    <p style="color: #718096; margin-bottom: 2rem;">
+        История всех ваших пожертвований через платформу Charity Aggregator
+    </p>
+</div>
 
 {% if donations %}
-<table border="1" cellpadding="6">
-    <thead>
-        <tr>
-            <th>Дата</th>
-            <th>Фонд</th>
-            <th>Проект</th>
-            <th>Сумма</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for d in donations %}
-        <tr>
-            <td>{{ d.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
-            <td>{{ d.fund.name }}</td>
-            <td>{{ d.project.title }}</td>
-            <td>{{ d.amount }} ₽</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Фонд</th>
+                <th>Проект</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set total_amount = namespace(value=0) %}
+            {% for d in donations %}
+            {% set total_amount.value = total_amount.value + d.amount %}
+            <tr>
+                <td>{{ d.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+                <td>
+                    <strong style="color: #3a86ff;">{{ d.fund.name }}</strong>
+                </td>
+                <td>
+                    <a href="/projects/{{ d.project.id }}" style="color: #2d3748; text-decoration: none;">
+                        {{ d.project.title }}
+                    </a>
+                </td>
+                <td>
+                    <span class="donation-amount">{{ d.amount }} ₽</span>
+                </td>
+                <td>
+                    <span class="status-badge status-completed">Завершено</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="table-summary">
+        <div class="summary-item">
+            <span class="summary-label">Всего пожертвований:</span>
+            <span class="summary-value">{{ donations|length }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Общая сумма:</span>
+            <span class="summary-value total-amount">
+                {{ total_amount.value }} ₽
+            </span>
+        </div>
+    </div>
+</div>
 {% else %}
-<p>Вы ещё не делали пожертвований.</p>
+<div class="empty-state">
+    <div style="text-align: center; padding: 3rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1rem;">💝</div>
+        <h3 style="color: #2d3748; margin-bottom: 1rem;">Пока нет пожертвований</h3>
+        <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem;">
+            Вы ещё не сделали ни одного пожертвования через нашу платформу.
+            Изучите проекты и фонды, чтобы начать помогать!
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="/projects" class="btn btn-primary">Найти проекты</a>
+            <a href="/funds" class="btn btn-secondary">Исследовать фонды</a>
+        </div>
+    </div>
+</div>
 {% endif %}
 
+
+<style>
+    /* Стили для страницы пожертвований */
+    .donations-header {
+        margin-bottom: 2rem;
+    }
+    
+    .table-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+    }
+    
+    thead {
+        background-color: #f0f7ff;
+    }
+    
+    th {
+        padding: 1.2rem 1.5rem;
+        text-align: left;
+        color: #2d3748;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        color: #4a5568;
+    }
+    
+    tbody tr:hover {
+        background-color: #f9f7f7;
+    }
+    
+    .donation-amount {
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 1.1rem;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #68d391;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fbbf24;
+    }
+    
+    .table-summary {
+        display: flex;
+        justify-content: space-between;
+        padding: 1.5rem;
+        background-color: #f9f7f7;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .summary-label {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 0.3rem;
+    }
+    
+    .summary-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+    
+    .total-amount {
+        color: #3a86ff;
+    }
+    
+    .empty-state {
+        margin: 2rem 0;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            min-width: 700px;
+        }
+        
+        .table-summary {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
 {% endblock %}

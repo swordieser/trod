@@ -1,38 +1,386 @@
 {% extends "base.html" %}
+
+{% block title %}Фонды | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Фонды</h2>
-<form method="get">
-    <label>Фильтр по тегу:</label>
-    <select name="tag">
-        <option value="">Все</option>
-        {% for t in tags %}
-        <option value="{{ t.tag }}"
-                {% if selected_tag == t.tag %}selected{% endif %}>
-            {{ t.tag }}
-        </option>
-        {% endfor %}
-    </select>
-    <button type="submit">Применить</button>
-</form>
+<div class="page-header">
+    <h1 style="font-size: 2rem; color: #2d3748; margin-bottom: 0.5rem;">Благотворительные фонды</h1>
+    <p style="color: #718096; margin-bottom: 2rem;">
+        Найдите фонд, которому хотите доверить свою помощь
+    </p>
+</div>
 
-<ul>
+<!-- Фильтры -->
+<div class="filters-card">
+    <h3 style="color: #2d3748; margin-bottom: 1rem; font-size: 1.1rem;">Фильтр фондов</h3>
+    <form method="get" class="filter-form">
+        <div class="filter-group">
+            <div class="filter-item">
+                <label for="tag" class="filter-label">Категория</label>
+                <select id="tag" name="tag" class="form-control">
+                    <option value="">Все категории</option>
+                    {% for t in tags %}
+                    <option value="{{ t.tag }}"
+                            {% if selected_tag == t.tag %}selected{% endif %}>
+                        {{ t.tag }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-item">
+                <button type="submit" class="btn btn-primary" style="padding: 0.9rem 2rem;">
+                    Применить фильтр
+                </button>
+                {% if selected_tag %}
+                <a href="/funds" class="btn btn-secondary" style="padding: 0.9rem 1.5rem;">
+                    Сбросить
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Статистика -->
+{% if funds %}
+<!-- Самый надежный вариант -->
+{% set total_sum = namespace(value=0) %}
+{% for fund in funds %}
+    {% set amount = 0 %}
+    {% if fund.total_collected is defined and fund.total_collected is not none %}
+        {% if fund.total_collected is string and fund.total_collected|trim != '' %}
+            {% set amount = fund.total_collected|int %}
+        {% elif fund.total_collected is number %}
+            {% set amount = fund.total_collected|int %}
+        {% endif %}
+    {% endif %}
+    {% set total_sum.value = total_sum.value + amount %}
+{% endfor %}
+
+<div class="stats-bar">
+    <div class="stat-item">
+        <span class="stat-label">Найдено фондов:</span>
+        <span class="stat-value">{{ funds|length }}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Общая сумма сборов:</span>
+        <span class="stat-value">{{ total_sum.value }} ₽</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Средний сбор на фонд:</span>
+        <span class="stat-value">
+            {{ (total_sum.value / funds|length)|round|int if funds|length > 0 else 0 }} ₽
+        </span>
+    </div>
+</div>
+{% endif %}
+
+<!-- Список фондов -->
+{% if funds %}
+<div class="funds-grid">
     {% for fund in funds %}
-    <li>
-        <strong>{{ fund.name }}</strong><br>
-
-        {% if fund.url  %}
-        Ссылка: {{ fund.url }}<br>
+    <div class="fund-card">
+        <div class="fund-header">
+            <div class="fund-avatar" style="width: 60px; height: 60px; background-color: #3a86ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem;">
+                {{ fund.name|first|upper }}
+            </div>
+            <h3 class="fund-title" style="font-size: 1.3rem; color: #2d3748; margin-bottom: 0.5rem; line-height: 1.4;">
+                {{ fund.name }}
+            </h3>
+        </div>
+        
+        <div class="fund-description" style="color: #718096; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; flex-grow: 1;">
+            {% if fund.description %}
+                {{ fund.description[:200] }}{% if fund.description|length > 200 %}...{% endif %}
+            {% else %}
+                <span style="color: #a0aec0;">Описание отсутствует</span>
+            {% endif %}
+        </div>
+        
+        <div class="fund-stats" style="background-color: #f9f7f7; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                <span style="color: #2d3748; font-weight: 500;">Собрано всего:</span>
+                <span style="color: #3a86ff; font-weight: 600;">
+                    {{ fund.total_collected }} ₽
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #718096; font-size: 0.9rem;">Активных проектов:</span>
+                <span style="color: #718096; font-size: 0.9rem;">
+                    {{ fund.active_projects_count if fund.active_projects_count else 0 }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="fund-contacts" style="margin-bottom: 1.5rem;">
+            {% if fund.url and fund.url|trim %}
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span style="color: #718096; font-size: 0.9rem;">🌐</span>
+                <a href="https://{{ fund.url }}" target="_blank" style="color: #3a86ff; text-decoration: none; font-size: 0.9rem; word-break: break-all;">
+                    {{ fund.url|truncate(30) }}
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if fund.phone and fund.phone|trim %}
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="color: #718096; font-size: 0.9rem;">📞</span>
+                <span style="color: #2d3748; font-size: 0.9rem;">{{ fund.phone }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="fund-footer">
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                <a href="/projects?fund_id={{ fund.id }}" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-size: 0.9rem;">
+                    Проекты фонда
+                </a>
+                
+                {% if fund.url and fund.url|trim %}
+                <a href="https://{{ fund.url }}" target="_blank" class="btn btn-secondary" style="padding: 0.7rem 1.5rem; font-size: 0.9rem;">
+                    Сайт фонда
+                </a>
+                {% endif %}
+                
+                <a href="/funds/{{ fund.id }}/donors" class="btn" style="padding: 0.7rem 1.5rem; font-size: 0.9rem; background-color: #f9f7f7; color: #2d3748; border: 1px solid #e2e8f0;">
+                    Донатеры
+                </a>
+            </div>
+        </div>
+        
+        {% if fund.tags %}
+        <div class="fund-tags" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for tag in fund.tags %}
+            <span class="tag-badge" style="background-color: #e0f2fe; color: #1e4e8c; padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; border: 1px solid #63b3ed;">
+                {{ tag.tag }}
+            </span>
+            {% endfor %}
+        </div>
         {% endif %}
-
-
-        {% if fund.url  %}
-        Номер телефона: {{ fund.phone }}<br>
-        {% endif %}
-
-        {{ fund.description }}<br>
-        Собрано: {{ fund.total_collected }}<br>
-        <a href="{{ fund.id }}/donors">Донатеры</a><br>
-    </li>
+    </div>
     {% endfor %}
-</ul>
+</div>
+{% else %}
+<div class="empty-state">
+    <div style="text-align: center; padding: 3rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1rem;">🏛️</div>
+        <h3 style="color: #2d3748; margin-bottom: 1rem;">Фонды не найдены</h3>
+        <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem;">
+            {% if selected_tag %}
+            В выбранной категории нет доступных фондов.
+            {% else %}
+            В данный момент в системе нет зарегистрированных фондов.
+            {% endif %}
+        </p>
+        {% if selected_tag %}
+        <a href="/funds" class="btn btn-primary">Показать все фонды</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+    /* Общие стили страницы */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    /* Фильтры */
+    .filters-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .filter-form {
+        width: 100%;
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .filter-item {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    
+    /* Статистика */
+    .stats-bar {
+        display: flex;
+        gap: 2rem;
+        background-color: #ffffff;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 0.3rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #3a86ff;
+    }
+    
+    /* Сетка фондов */
+    .funds-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    /* Карточка фонда */
+    .fund-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .fund-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        border-color: #3a86ff;
+    }
+    
+    .fund-header {
+        margin-bottom: 1rem;
+    }
+    
+    .fund-footer {
+        margin-top: auto;
+    }
+    
+    /* Состояние "пусто" */
+    .empty-state {
+        margin: 3rem 0;
+    }
+    
+    /* Бейджи тегов */
+    .tag-badge {
+        background-color: #e0f2fe;
+        color: #1e4e8c;
+        padding: 0.3rem 0.7rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        border: 1px solid #63b3ed;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .funds-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+        }
+        
+        .filter-item {
+            min-width: 100%;
+        }
+        
+        .stats-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .fund-footer {
+            flex-direction: column;
+            gap: 0.8rem;
+            align-items: stretch;
+        }
+        
+        .fund-footer .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Исправляем проблему с браузером, который отправляет 0 для первого option
+    const tagSelect = document.getElementById('tag');
+    const filterForm = document.querySelector('.filter-form');
+    
+    if (tagSelect && filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            // Если значение 0, значит браузер отправил индекс вместо value
+            if (tagSelect.value === "0") {
+                e.preventDefault();
+                
+                // Получаем реальное значение из option
+                const selectedOption = tagSelect.options[tagSelect.selectedIndex];
+                const realValue = selectedOption.getAttribute('value');
+                
+                if (realValue && realValue !== "") {
+                    // Перенаправляем с правильным значением
+                    window.location.href = `/funds?tag=${encodeURIComponent(realValue)}`;
+                } else {
+                    // Если пустое значение, показываем все фонды
+                    window.location.href = '/funds';
+                }
+            }
+        });
+        
+        // Также обрабатываем изменение select в реальном времени
+        tagSelect.addEventListener('change', function() {
+            // Если браузер установил значение 0, исправляем его
+            if (this.value === "0") {
+                const selectedOption = this.options[this.selectedIndex];
+                const realValue = selectedOption.getAttribute('value');
+                this.value = realValue || "";
+            }
+        });
+    }
+    
+    // Добавляем обработку для кнопок "Сайт фонда"
+    const fundSiteButtons = document.querySelectorAll('.fund-footer .btn-secondary');
+    fundSiteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const url = this.getAttribute('href');
+            
+            // Проверяем, что URL валидный
+            if (!url || url.trim() === '' || url === '#' || !url.includes('.')) {
+                e.preventDefault();
+                alert('Ссылка на сайт фонда не указана или недействительна');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

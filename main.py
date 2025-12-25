@@ -68,13 +68,19 @@ app.add_middleware(
     secret_key="SUPER_SECRET_KEY"
 )
 
-
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
-        "base.html",
+        "home.html", 
         {"request": request}
     )
+
+#@app.get("/", response_class=HTMLResponse)
+#def home(request: Request, db: Session = Depends(get_db)):
+#    return templates.TemplateResponse(
+#        "base.html",
+#        {"request": request}
+#    )
 
 
 @app.get("/my-donations", response_class=HTMLResponse)

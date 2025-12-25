@@ -1,28 +1,495 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: auto;
+/* static/style.css - Основной файл стилей */
+
+/* 1. Базовые сбросы и глобальные настройки */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-header {
+html {
+    height: 100%;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f7f7;
+    color: #2d3748;
+    line-height: 1.6;
+    min-height: 100vh;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+}
+
+/* 2. Общие контейнеры и утилиты */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 3. Шапка */
+header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.07);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.2rem 0;
+}
+
+header h1 {
+    margin-bottom: 1rem;
+}
+
+header h1 a {
+    font-size: 1.8rem;
+    color: #3a86ff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s ease;
+    display: inline-block;
+}
+
+header h1 a:hover {
+    color: #ffb347;
+}
+
+/* 4. Навигация */
+nav {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #e2e8f0;
+    align-items: stretch; /* Изменяем на stretch */
+    flex-wrap: wrap;
 }
 
 nav a {
-    margin-right: 10px;
+    color: #718096;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center; /* Центрируем текст по вертикали */
+    justify-content: center; /* Центрируем по горизонтали */
+    min-height: 36px; /* Минимальная высота */
 }
 
-progress {
+nav strong {
+    color: #718096;
+    font-weight: 600;
+    padding: 0;
+    display: flex;
+    align-items: center; /* Центрируем текст по вертикали */
+    justify-content: center; /* Центрируем по горизонтали */
+    min-height: 36px; /* Такая же высота как у ссылок */
+    font-size: 1rem;
+}
+
+nav a:hover {
+    color: #3a86ff;
+}
+
+nav hr {
+    width: 1px;
+    height: 24px; /* Фиксированная высота */
+    background-color: #e2e8f0;
+    border: none;
+    margin: 0;
+    align-self: center; /* Центрируем вертикально */
+}
+
+/* 5. Основное содержимое */
+main {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* 6. Блок пользователя */
+.user-info {
+    background-color: #ffffff;
+    padding: 1.2rem 1.5rem;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.user-greeting {
+    color: #3a86ff;
+    font-weight: 500;
+}
+
+.user-info a:not(.btn) {
+    color: #3a86ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.user-info a:not(.btn):hover {
+    color: #ffb347;
+    text-decoration: underline;
+}
+
+.or-text {
+    margin: 0 0.3rem;
+    color: #718096;
+}
+
+/* 7. КНОПКИ (основные изменения здесь) */
+.btn {
+    display: inline-block;
+    padding: 0.7rem 1.8rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Кнопка "Войти" - СИНИЙ фон, БЕЛЫЙ текст */
+.btn-primary {
+    background-color: #3a86ff;
+    color: white;
+    border: 1px solid #3a86ff;
+}
+
+.btn-primary:hover {
+    background-color: #2a75ef;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(58, 134, 255, 0.2);
+}
+
+/* Кнопка "Зарегистрироваться" - БЕЛЫЙ фон, СИНИЙ текст */
+.btn-secondary {
+    background-color: #ffffff;
+    color: #3a86ff;
+    border: 1px solid #3a86ff;
+}
+
+.btn-secondary:hover {
+    background-color: #f0f7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(58, 134, 255, 0.1);
+}
+
+/* Дополнительная кнопка (используется на главной) */
+.btn-warning {
+    background-color: #ffb347;
+    color: white;
+    border: 1px solid #ffb347;
+}
+
+.btn-warning:hover {
+    background-color: #ffa227;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 179, 71, 0.2);
+}
+
+/* 8. Футер */
+footer {
+    background-color: #ffffff;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e2e8f0;
+    color: #718096;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
     width: 100%;
-    height: 20px;
+    max-width: 450px;
+    border: 1px solid #e2e8f0;
 }
 
-.flash-error {
-    background: #ffe5e5;
-    border: 1px solid #ff4d4d;
-    color: #a60000;
-    padding: 10px;
-    margin-bottom: 15px;
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f9f7f7;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3a86ff;
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+    background-color: #ffffff;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.3rem;
+    color: #a0aec0;
+    font-size: 0.85rem;
+}
+
+.auth-footer {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1.5rem;
+}
+
+/* Сообщения об ошибках */
+.error-message {
+    background-color: #fed7d7;
+    color: #9b2c2c;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #fc8181;
+    font-size: 0.95rem;
+}
+
+.field-error {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+/* Фильтры */
+.filters-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.filter-form {
+    width: 100%;
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filter-item {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Статистика */
+.stats-bar {
+    display: flex;
+    gap: 2rem;
+    background-color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-bottom: 0.3rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #3a86ff;
+}
+
+/* Сетка проектов */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Карточка проекта */
+.project-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    border-color: #3a86ff;
+}
+
+.project-header {
+    margin-bottom: 1rem;
+}
+
+.project-title {
+    font-size: 1.25rem;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.project-fund {
+    margin-bottom: 0.5rem;
+}
+
+.project-description {
+    color: #718096;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+/* Прогресс-бар */
+.project-progress {
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background-color: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3a86ff, #ffb347);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.empty-state {
+    margin: 3rem 0;
+}
+
+/* 9. Адаптивность */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    nav {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .user-info {
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .or-text {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .auth-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+    }
+    
+    .filter-item {
+        min-width: 100%;
+    }
+    
+    .stats-bar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .project-footer {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: stretch;
+    }
+    
+    .project-footer .btn {
+        width: 100%;
+        text-align: center;
+    }
 }

@@ -1,31 +1,148 @@
 {% extends "base.html" %}
 
+{% block title %}Вход | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Вход</h2>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 style="color: #2d3748; margin-bottom: 0.5rem;">Вход в систему</h2>
+            <p style="color: #718096; margin-bottom: 2rem;">
+                Войдите в свой аккаунт для управления пожертвованиями
+            </p>
+        </div>
 
-{% if message %}
-<div class="flash-error">
-    {{ message }}
+        {% if message %}
+        <div class="error-message">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control" 
+                    required
+                    placeholder="Введите имя пользователя"
+                    {% if message %}autofocus{% endif %}
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Пароль</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    required
+                    placeholder="Введите пароль"
+                >
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">
+                    Войти в систему
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p style="color: #718096; text-align: center; margin-bottom: 0.5rem;">
+                Нет аккаунта?
+                <a href="/auth/register" style="color: #3a86ff; text-decoration: none; font-weight: 500;">
+                    Зарегистрироваться
+                </a>
+            </p>
+            <p style="color: #a0aec0; text-align: center; font-size: 0.9rem;">
+                По вопросам доступа обращайтесь в поддержку
+            </p>
+        </div>
+    </div>
 </div>
-{% endif %}
 
-<!-- action="/auth/login"-->
-<form method="post">
-    <div>
-        <label>Имя пользователя</label><br>
-        <input type="text" name="username" required>
-    </div>
-
-    <div>
-        <label>Пароль</label><br>
-        <input type="password" name="password" required>
-    </div>
-
-    <button type="submit">Войти</button>
-</form>
-
-<p>
-    Нет аккаунта?
-    <a href="/auth/register">Зарегистрироваться</a>
-</p>
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 450px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-form {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f9f7f7;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3a86ff;
+        box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+        background-color: #ffffff;
+    }
+    
+    .auth-footer {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1.5rem;
+    }
+    
+    .error-message {
+        background-color: #fed7d7;
+        color: #9b2c2c;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #fc8181;
+        font-size: 0.95rem;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+            margin: 0 1rem;
+        }
+    }
+</style>
 {% endblock %}

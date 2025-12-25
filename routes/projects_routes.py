@@ -13,18 +13,28 @@ router = APIRouter(prefix="/projects")
 @router.get("/", response_class=HTMLResponse)
 def get_projects(
         request: Request,
-        fund_id: int | None = None,
+        fund_id: str = "",  # Пустая строка по умолчанию
         db: Session = Depends(get_db)
 ):
-    projects = crud.get_projects(db, fund_id)
+    selected_fund = None
+    
+    # Преобразуем fund_id: пустая строка -> None, иначе -> int
+    if fund_id and fund_id.strip():  # Проверяем, что не пустая строка
+        try:
+            selected_fund = int(fund_id)
+        except ValueError:
+            selected_fund = None  # Если не число, игнорируем
+    
+    projects = crud.get_projects(db, selected_fund)
     funds = crud.get_funds(db)
+    
     return templates.TemplateResponse(
         "projects.html",
         {
             "request": request,
             "projects": projects,
             "funds": funds,
-            "selected_fund": fund_id,
+            "selected_fund": selected_fund,
         }
     )
 
@@ -39,6 +49,23 @@ def project_detail(
     return templates.TemplateResponse(
         "project_detail.html",
         {"request": request, "project": project}
+    )
+
+
+@router.get("/donate/{project_id}", response_class=HTMLResponse)
+def donate_form(
+        request: Request,
+        project_id: int,
+        db: Session = Depends(get_db)
+):
+    project = crud.get_project(db, project_id)
+    return templates.TemplateResponse(
+        "donate.html",
+        {
+            "request": request,
+            "project": project,
+            "user": request.state.user
+        }
     )
 
 

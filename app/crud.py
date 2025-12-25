@@ -1,9 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models import Fund, Project, Donation, FundTags, Tags
-
+from sqlalchemy import func
 
 def get_funds(db: Session, tag: str | None = None):
-    query = db.query(Fund)
+    from sqlalchemy.orm import joinedload
+    
+    query = db.query(Fund).options(
+        joinedload(Fund.tags),
+        joinedload(Fund.projects)
+    )
 
     if tag:
         query = (
@@ -13,7 +18,13 @@ def get_funds(db: Session, tag: str | None = None):
             .filter(Tags.tag == tag)
         )
 
-    return query.all()
+    funds = query.all()
+    
+    # Только считаем активные проекты, не трогаем total_collected
+    for fund in funds:
+        fund.active_projects_count = len(fund.projects)
+    
+    return funds
 
 
 def get_tags(db: Session):
@@ -23,8 +34,10 @@ def get_tags(db: Session):
 
 def get_projects(db: Session, fund_id: int | None = None):
     query = db.query(Project)
-    if fund_id and fund_id != -1:
+
+    if fund_id is not None:
         query = query.filter(Project.fund_id == fund_id)
+    
     return query.all()
 
 
@@ -42,6 +55,12 @@ def create_donation(db, user, project, amount):
     db.add(donation)
 
     project.collected_amount += amount
-    project.fund.total_collected += amount
+
+    fund = project.fund
+    fund.total_collected = (
+        db.query(func.coalesce(func.sum(Donation.amount), 0))
+        .filter(Donation.fund_id == fund.id)
+        .scalar() or 0
+    )
 
     db.commit()

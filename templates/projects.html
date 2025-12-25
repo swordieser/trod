@@ -1,28 +1,382 @@
 {% extends "base.html" %}
+
+{% block title %}Проекты | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Проекты</h2>
+<div class="page-header">
+    <h1 style="font-size: 2rem; color: #2d3748; margin-bottom: 0.5rem;">Благотворительные проекты</h1>
+    <p style="color: #718096; margin-bottom: 2rem;">
+        Найдите проект, который вас вдохновляет, и поддержите его
+    </p>
+</div>
 
-<form method="get">
-    <select name="fund_id">
-        <option value="-1">Все фонды</option>
-        {% for fund in funds %}
-        <option value="{{ fund.id }}"
-            {% if fund.id == selected_fund %}selected{% endif %}>
-            {{ fund.name }}
-        </option>
-        {% endfor %}
-    </select>
-    <button type="submit">Фильтр</button>
-</form>
+<!-- Фильтры -->
+<div class="filters-card">
+    <h3 style="color: #2d3748; margin-bottom: 1rem; font-size: 1.1rem;">Фильтр проектов</h3>
+    <form method="get" class="filter-form" id="filterForm">
+        <div class="filter-group">
+            <div class="filter-item">
+                <label for="fund_id" class="filter-label">Фонд</label>
+                <select id="fund_id" name="fund_id" class="form-control">
+                    <option value="">Все фонды</option>
+                    {% for fund in funds %}
+                    <option value="{{ fund.id }}"
+                        {% if selected_fund == fund.id %}selected{% endif %}>
+                        {{ fund.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-item">
+                <button type="submit" class="btn btn-primary" style="padding: 0.9rem 2rem;">
+                    Применить фильтр
+                </button>
+                {% if selected_fund is not none %}
+                <a href="/projects" class="btn btn-secondary" style="padding: 0.9rem 1.5rem;">
+                    Сбросить
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
 
-<ul>
+<!-- Статистика -->
+{% if projects %}
+{% set total_goal = [0] %}
+{% set total_collected = [0] %}
 {% for project in projects %}
-    <li>
-        <a href="/projects/{{ project.id }}">
-            {{ project.title }}
-        </a><br>
-        Собрано {{ project.collected_amount }} / {{ project.goal_amount }}
-    </li>
+    {% if total_goal.append(total_goal.pop() + project.goal_amount) %}{% endif %}
+    {% if total_collected.append(total_collected.pop() + project.collected_amount) %}{% endif %}
 {% endfor %}
-</ul>
+
+<div class="stats-bar">
+    <div class="stat-item">
+        <span class="stat-label">Найдено проектов:</span>
+        <span class="stat-value">{{ projects|length }}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Общая цель:</span>
+        <span class="stat-value">{{ total_goal[0] }} ₽</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Собрано всего:</span>
+        <span class="stat-value">{{ total_collected[0] }} ₽</span>
+    </div>
+</div>
+{% endif %}
+
+<!-- Список проектов -->
+{% if projects %}
+<div class="projects-grid">
+    {% for project in projects %}
+    <div class="project-card">
+        <div class="project-header">
+            <h3 class="project-title">
+                <a href="/projects/{{ project.id }}" style="color: #2d3748; text-decoration: none;">
+                    {{ project.title }}
+                </a>
+            </h3>
+            <div class="project-fund">
+                <span style="color: #718096; font-size: 0.9rem;">Фонд:</span>
+                <span style="color: #3a86ff; font-weight: 500; margin-left: 0.3rem;">
+                    {{ project.fund.name }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="project-description">
+            {% if project.description %}
+                {{ project.description[:150] }}{% if project.description|length > 150 %}...{% endif %}
+            {% else %}
+                <span style="color: #a0aec0;">Описание отсутствует</span>
+            {% endif %}
+        </div>
+        
+        <div class="project-progress">
+            <div class="progress-info">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #2d3748; font-weight: 500;">
+                        Собрано: {{ project.collected_amount }} ₽
+                    </span>
+                    <span style="color: #718096;">
+                        Цель: {{ project.goal_amount }} ₽
+                    </span>
+                </div>
+                <div class="progress-bar">
+                    {% set progress_percent = (project.collected_amount / project.goal_amount * 100)|round|int if project.goal_amount > 0 else 0 %}
+                    <div class="progress-fill" style="width: {{ progress_percent }}%"></div>
+                </div>
+                <div style="text-align: center; margin-top: 0.5rem; color: #3a86ff; font-weight: 600;">
+                    {{ progress_percent }}%
+                </div>
+            </div>
+        </div>
+        
+        <div class="project-footer">
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                <a href="/projects/{{ project.id }}" class="btn btn-primary" style="padding: 0.7rem 1.5rem;">
+                    Подробнее
+                </a>
+                
+                {% if project.collected_amount < project.goal_amount %}
+                    {% if user %}
+                    <a href="/projects/donate/{{ project.id }}" class="btn btn-warning" style="padding: 0.7rem 1.5rem;">
+                        Поддержать
+                    </a>
+                    {% else %}
+                    <a href="/auth/login" class="btn btn-secondary" style="padding: 0.7rem 1.5rem;">
+                        Войти для поддержки
+                    </a>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-completed">Цель достигнута</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div style="text-align: center; padding: 3rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1rem;">🔍</div>
+        <h3 style="color: #2d3748; margin-bottom: 1rem;">Проекты не найдены</h3>
+        <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem;">
+            {% if selected_fund is not none %}
+            По выбранному фонду нет доступных проектов.
+            {% else %}
+            В данный момент нет активных проектов.
+            {% endif %}
+        </p>
+        {% if selected_fund is not none %}
+        <a href="/projects" class="btn btn-primary">Показать все проекты</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+    /* Общие стили страницы */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    /* Фильтры */
+    .filters-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .filter-form {
+        width: 100%;
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .filter-item {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    
+    /* Статистика */
+    .stats-bar {
+        display: flex;
+        gap: 2rem;
+        background-color: #ffffff;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 0.3rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #3a86ff;
+    }
+    
+    /* Сетка проектов */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    /* Карточка проекта */
+    .project-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        border-color: #3a86ff;
+    }
+    
+    .project-header {
+        margin-bottom: 1rem;
+    }
+    
+    .project-title {
+        font-size: 1.25rem;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .project-fund {
+        margin-bottom: 0.5rem;
+    }
+    
+    .project-description {
+        color: #718096;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+    
+    /* Прогресс-бар */
+    .project-progress {
+        margin-bottom: 1.5rem;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background-color: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3a86ff, #ffb347);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    
+    /* Футер карточки */
+    .project-footer {
+        margin-top: auto;
+    }
+    
+    /* Бейджи статуса */
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #68d391;
+    }
+    
+    /* Состояние "пусто" */
+    .empty-state {
+        margin: 3rem 0;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+        }
+        
+        .filter-item {
+            min-width: 100%;
+        }
+        
+        .stats-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .project-footer {
+            flex-direction: column;
+            gap: 0.8rem;
+            align-items: stretch;
+        }
+        
+        .project-footer .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fundSelect = document.getElementById('fund_id');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Простая валидация формы
+    filterForm.addEventListener('submit', function(e) {
+        // Если выбрано "Все фонды" (значение пустое), отправляем как есть
+        if (fundSelect.value === "") {
+            return true; // Позволяем форме отправиться
+        }
+        
+        // Проверяем, что значение - это число (ID фонда)
+        const fundId = parseInt(fundSelect.value);
+        if (isNaN(fundId)) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите корректный фонд');
+            return false;
+        }
+        
+        return true; // Позволяем форме отправиться
+    });
+    
+    console.log('Filter form initialized');
+    console.log('Current fund select value:', fundSelect.value);
+});
+</script>
 {% endblock %}

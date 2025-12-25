@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Главная | Charity Aggregator{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1 style="font-size: 2.5rem; color: #2d3748; margin-bottom: 1.5rem; text-align: center;">
+        Добро пожаловать в Charity Aggregator
+    </h1>
+    <p style="text-align: center; color: #718096; max-width: 800px; margin: 0 auto 2rem; font-size: 1.1rem;">
+        Платформа для поиска и поддержки благотворительных проектов и фондов
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+        <a href="/projects" class="btn btn-primary" style="padding: 1rem 2rem;">Смотреть проекты</a>
+        <a href="/funds" class="btn btn-secondary" style="padding: 1rem 2rem;">Смотреть фонды</a>
+        
+        {% if not user %}
+        <a href="/auth/register" class="btn btn-warning" style="padding: 1rem 2rem;">Присоединиться</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="features" style="margin-top: 3rem;">
+    <h2 style="text-align: center; color: #3a86ff; margin-bottom: 2rem;">Наши возможности</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+            <h3 style="color: #3a86ff; margin-bottom: 0.8rem;">🔍 Поиск проектов</h3>
+            <p style="color: #718096;">Найдите благотворительный проект, который соответствует вашим интересам</p>
+        </div>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+            <h3 style="color: #ffb347; margin-bottom: 0.8rem;">🏛️ Фонды</h3>
+            <p style="color: #718096;">Изучите проверенные благотворительные фонды и их деятельность</p>
+        </div>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+            <h3 style="color: #68d391; margin-bottom: 0.8rem;">📊 Отслеживание</h3>
+            <p style="color: #718096;">Следите за своими пожертвованиями и их использованием</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Поддержать проект | Charity Aggregator{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div style="margin-bottom: 1.5rem;">
+                <a href="/projects/{{ project.id }}" style="color: #3a86ff; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    ← Вернуться к проекту
+                </a>
+            </div>
+            
+            <h2 style="color: #2d3748; margin-bottom: 0.5rem;">Поддержать проект</h2>
+            <p style="color: #718096; margin-bottom: 1rem; font-size: 1.1rem;">
+                «{{ project.title }}»
+            </p>
+            
+            <div style="background-color: #f0f7ff; padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #2d3748; font-weight: 500;">Фонд:</span>
+                    <span style="color: #3a86ff; font-weight: 500;">{{ project.fund.name }}</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                    <span style="color: #2d3748; font-weight: 500;">Собрано:</span>
+                    <span style="color: #3a86ff; font-weight: 500;">{{ project.collected_amount }} ₽</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                    <span style="color: #2d3748;">Цель:</span>
+                    <span style="color: #718096;">{{ project.goal_amount }} ₽</span>
+                </div>
+                
+                <div class="progress-bar" style="margin-top: 0.8rem; height: 10px;">
+                    {% set progress_percent = (project.collected_amount / project.goal_amount * 100)|round|int if project.goal_amount > 0 else 0 %}
+                    <div class="progress-fill" style="width: {{ progress_percent }}%"></div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 0.5rem; color: #3a86ff; font-weight: 600;">
+                    {{ progress_percent }}%
+                </div>
+            </div>
+        </div>
+
+        {% if project.collected_amount >= project.goal_amount %}
+        <div class="info-message" style="background-color: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #68d391; text-align: center;">
+            🎉 Цель проекта уже достигнута! Вы всё равно можете сделать пожертвование.
+        </div>
+        {% endif %}
+
+        <form action="/projects/donate/{{ project.id }}" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="amount" class="form-label">Сумма пожертвования (₽)</label>
+                <input 
+                    type="number" 
+                    id="amount" 
+                    name="amount" 
+                    class="form-control" 
+                    required
+                    min="1"
+                    value="100"
+                    placeholder="Введите сумму"
+                    style="font-size: 1.1rem; padding: 1rem;"
+                >
+                <small class="form-hint">Минимальная сумма: 1 рубль</small>
+            </div>
+
+            <div class="form-group">
+                <p style="color: #718096; margin-bottom: 0.8rem; font-size: 0.95rem;">Выберите сумму:</p>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+                    <button type="button" class="amount-btn" data-amount="100">100 ₽</button>
+                    <button type="button" class="amount-btn" data-amount="500">500 ₽</button>
+                    <button type="button" class="amount-btn" data-amount="1000">1 000 ₽</button>
+                    <button type="button" class="amount-btn" data-amount="5000">5 000 ₽</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                    Сделать пожертвование
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p style="color: #a0aec0; text-align: center; font-size: 0.9rem; margin-top: 1.5rem;">
+                Ваше пожертвование будет направлено в фонд «{{ project.fund.name }}»
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .amount-btn {
+        padding: 0.8rem 0.5rem;
+        background-color: #f9f7f7;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #2d3748;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .amount-btn:hover {
+        background-color: #e2e8f0;
+        transform: translateY(-2px);
+    }
+    
+    .amount-btn.active {
+        background-color: #3a86ff;
+        color: white;
+        border-color: #3a86ff;
+        box-shadow: 0 4px 10px rgba(58, 134, 255, 0.2);
+    }
+    
+    .info-message {
+        background-color: #e0f2fe;
+        color: #1e4e8c;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #63b3ed;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.getElementById('amount');
+        const amountButtons = document.querySelectorAll('.amount-btn');
+        
+        // Устанавливаем первую кнопку как активную по умолчанию
+        if (amountButtons.length > 0) {
+            amountButtons[0].classList.add('active');
+        }
+        
+        amountButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const amount = this.getAttribute('data-amount');
+                amountInput.value = amount;
+                
+                // Удаляем активный класс у всех кнопок
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                // Добавляем активный класс текущей кнопке
+                this.classList.add('active');
+            });
+        });
+        
+        // При изменении инпута снимаем выделение с кнопок
+        amountInput.addEventListener('input', function() {
+            amountButtons.forEach(btn => btn.classList.remove('active'));
+        });
+        
+        // При загрузке выделяем кнопку, соответствующую текущему значению
+        const currentAmount = amountInput.value;
+        amountButtons.forEach(button => {
+            if (button.getAttribute('data-amount') === currentAmount) {
+                button.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,13 +1,264 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Донатеры фонда {{ fund.name }}</h2>
 
-<ul>
+{% block title %}Донатеры фонда {{ fund.name }} | Charity Aggregator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 style="font-size: 2rem; color: #2d3748; margin-bottom: 0.5rem;">Донатеры фонда</h1>
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <div class="fund-avatar" style="width: 60px; height: 60px; background-color: #3a86ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; font-weight: bold;">
+            {{ fund.name|first|upper }}
+        </div>
+        <div>
+            <h2 style="color: #2d3748; margin-bottom: 0.3rem; font-size: 1.5rem;">{{ fund.name }}</h2>
+            {% if fund.url and fund.url|trim %}
+            <a href="https://{{ fund.url }}" target="_blank" style="color: #718096; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 0.3rem;">
+                <span>🌐</span> {{ fund.url|truncate(30) }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+{% set total_amount = namespace(value=0) %}
+{% set max_amount = namespace(value=0) %}
 {% for d in donations %}
-    <li>
-        {{ d.user.username }} — {{ d.amount }} ₽
-        ({{ d.created_at.strftime("%d.%m.%Y %H:%M") }})
-    </li>
+    {% set total_amount.value = total_amount.value + d.amount %}
+    {% if d.amount > max_amount.value %}
+        {% set max_amount.value = d.amount %}
+    {% endif %}
 {% endfor %}
-</ul>
+
+<div class="stats-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; background-color: #ffffff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+    <div class="stat-item" style="display: flex; flex-direction: column;">
+        <span class="stat-label" style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Всего донатеров</span>
+        <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #3a86ff;">
+            {{ donations|length }}
+        </span>
+    </div>
+    
+    <div class="stat-item" style="display: flex; flex-direction: column;">
+        <span class="stat-label" style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Общая сумма</span>
+        <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #3a86ff;">
+            {{ total_amount.value|format_number if format_number is defined else total_amount.value }} ₽
+        </span>
+    </div>
+    
+    <div class="stat-item" style="display: flex; flex-direction: column;">
+        <span class="stat-label" style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Средний донат</span>
+        <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #3a86ff;">
+            {% if donations|length > 0 %}
+                {{ (total_amount.value / donations|length)|round|int|format_number if format_number is defined else (total_amount.value / donations|length)|round|int }} ₽
+            {% else %}
+                0 ₽
+            {% endif %}
+        </span>
+    </div>
+    
+    <div class="stat-item" style="display: flex; flex-direction: column;">
+        <span class="stat-label" style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Максимальный донат</span>
+        <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #3a86ff;">
+            {% if donations|length > 0 %}
+                {{ max_amount.value|format_number if format_number is defined else max_amount.value }} ₽
+            {% else %}
+                0 ₽
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+<!-- Список донатеров -->
+{% if donations %}
+<div class="donors-container">
+    <div class="donors-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
+        <h3 style="color: #2d3748; font-size: 1.2rem; margin: 0;">
+            Список донатеров <span style="color: #718096; font-size: 0.9rem;">({{ donations|length }})</span>
+        </h3>
+    </div>
+    
+    <!-- Сетка донатеров -->
+    <div class="donors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for donation in donations %}
+        <div class="donor-card" style="background-color: #ffffff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; transition: all 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div class="donor-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #3a86ff, #6c8eff); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; flex-shrink: 0;">
+                    {{ donation.user.username|first|upper }}
+                </div>
+                <div style="flex: 1;">
+                    <h4 style="color: #2d3748; margin-bottom: 0.2rem; font-size: 1.1rem; font-weight: 600;">
+                        {{ donation.user.username }}
+                    </h4>
+                    <div style="color: #718096; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;">
+                        <span>📅</span> 
+                        {{ donation.created_at.strftime("%d.%m.%Y") }}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background-color: #f9f7f7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #2d3748; font-weight: 500;">Сумма доната:</span>
+                    <span style="color: #3a86ff; font-weight: 700; font-size: 1.2rem;">
+                        {{ donation.amount|format_number if format_number is defined else donation.amount }} ₽
+                    </span>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; color: #718096; font-size: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 0.3rem;">
+                    <span>🕒</span>
+                    <span>{{ donation.created_at.strftime("%H:%M") }}</span>
+                </div>
+                {% if donation.project %}
+                <div style="display: flex; align-items: center; gap: 0.3rem;">
+                    <span>🎯</span>
+                    <span title="{{ donation.project.title }}" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ donation.project.title|truncate(20) }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="empty-state" style="text-align: center; padding: 4rem 2rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+    <div style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1rem;">💸</div>
+    <h3 style="color: #2d3748; margin-bottom: 1rem; font-size: 1.5rem;">Пока нет донатеров</h3>
+    <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem; font-size: 1rem;">
+        Этот фонд еще не получал пожертвований. Будьте первым!
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/projects?fund_id={{ fund.id }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; background-color: #3a86ff; color: white; border: none; border-radius: 8px; text-decoration: none; font-size: 0.95rem;">
+            Проекты фонда
+        </a>
+        <a href="/funds" class="btn btn-secondary" style="padding: 0.8rem 1.5rem; background-color: #f9f7f7; color: #2d3748; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; font-size: 0.95rem;">
+            Все фонды
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Навигация -->
+<div class="navigation" style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <a href="/funds" class="btn" style="padding: 0.8rem 1.5rem; background-color: #f9f7f7; color: #2d3748; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+            ← Назад к фондам
+        </a>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="/projects?fund_id={{ fund.id }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; background-color: #3a86ff; color: white; border: none; border-radius: 8px; text-decoration: none; font-size: 0.95rem;">
+                Проекты фонда
+            </a>
+            {% if fund.url and fund.url|trim %}
+            <a href="https://{{ fund.url }}" target="_blank" class="btn btn-secondary" style="padding: 0.8rem 1.5rem; background-color: #f9f7f7; color: #2d3748; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; font-size: 0.95rem;">
+                Сайт фонда
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Общие стили */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .btn {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .btn-primary:hover {
+        background-color: #2a76f0 !important;
+        box-shadow: 0 4px 12px rgba(58, 134, 255, 0.25) !important;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #edf2f7 !important;
+    }
+    
+    .donor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        border-color: #3a86ff;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .stats-bar {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1rem !important;
+        }
+        
+        .donors-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .donors-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .navigation {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .navigation > div {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .navigation .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-bar {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .page-header {
+            text-align: center;
+        }
+        
+        .page-header > div {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .fund-avatar {
+            margin: 0 auto 1rem auto;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Простая анимация карточек
+    const cards = document.querySelectorAll('.donor-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
 {% endblock %}

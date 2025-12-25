@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="ru-RU">
 <head>
-    <title>Charity Aggregator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Charity Aggregator{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-{% set user = current_user(request) %}
-<header>
-    <h1><a href="/">Charity Aggregator</a></h1>
-    <nav>
-        <a href="/funds/">Фонды</a>
-        <a href="/projects/">Проекты</a>
-        {% if user and user.role.value == "admin" %}
-        <hr>
-        <strong>Администрирование</strong><br>
-        <a href="/admin/funds/new">Создать фонд</a><br>
-        <a href="/admin/projects/new">Создать проект</a>
-        <hr>
-        {% endif %}
-    </nav>
-</header>
-<main>
-    {% if user %}
-    Привет, {{ user.username }} |
-    <a href="/my-donations">Мои пожертвования</a> |
-    <a href="/auth/logout">Выйти</a>
-    {% else %}
-    <a href="/auth/login">Войти</a>
-    {% endif %}
+    {% set user = current_user(request) %}
+    
+    <header>
+        <div class="container">
+            <h1><a href="/">Charity Aggregator</a></h1>
+            <nav>
+                <a href="/funds/">Фонды</a>
+                <a href="/projects/">Проекты</a>
+                
+                {% if user and user.role.value == "admin" %}
+                <hr>
+                <strong>Администрирование</strong>
+                <a href="/admin/funds/new">Создать фонд</a>
+                <a href="/admin/projects/new">Создать проект</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
 
-    {% block content %}{% endblock %}
-</main>
+    <main class="container">
+        <div class="user-info">
+            {% if user %}
+                <span class="user-greeting">Привет, {{ user.username }}!</span> |
+                <a href="/my-donations">Мои пожертвования</a> |
+                <a href="/auth/logout">Выйти</a>
+            {% else %}
+                <a href="/auth/login" class="btn btn-primary">Войти</a>
+                <span class="or-text">или</span>
+                <a href="/auth/register" class="btn btn-secondary">Зарегистрироваться</a>
+            {% endif %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Charity Aggregator</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

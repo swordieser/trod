@@ -1,36 +1,386 @@
 {% extends "base.html" %}
 
+{% block title %}Создать фонд | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Создать фонд</h2>
+<div class="admin-form-container" style="padding: 2rem 0; margin-top: 2rem;">
+    <div class="admin-form-card" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); padding: 2.5rem; max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0;">
+        <div class="admin-form-header" style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="color: #2d3748; margin-bottom: 0.5rem; font-size: 1.8rem;">Создать новый фонд</h1>
+            <p style="color: #718096; margin-bottom: 2rem;">
+                Заполните информацию о новом благотворительном фонде
+            </p>
+        </div>
 
-<form method="post">
-    <div>
-        <label>Название фонда</label><br>
-        <input type="text" name="name" required>
+        <form method="post" action="/admin/funds/new" class="admin-form" style="margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="name" class="form-label" style="display: block; margin-bottom: 0.5rem; color: #2d3748; font-weight: 500; font-size: 0.95rem;">
+                    Название фонда *
+                </label>
+                <input type="text" id="name" name="name" required 
+                       class="form-control" 
+                       style="width: 100%; padding: 0.9rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; background-color: #f9f7f7;"
+                       placeholder="Введите название фонда">
+                <small class="form-hint" style="display: block; margin-top: 0.3rem; color: #a0aec0; font-size: 0.85rem;">
+                    Например: "Фонд помощи детям" или "Защита природы"
+                </small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="description" class="form-label" style="display: block; margin-bottom: 0.5rem; color: #2d3748; font-weight: 500; font-size: 0.95rem;">
+                    Описание фонда *
+                </label>
+                <textarea id="description" name="description" rows="5" required 
+                          class="form-control"
+                          style="width: 100%; padding: 0.9rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; resize: vertical; background-color: #f9f7f7; min-height: 120px;"
+                          placeholder="Расскажите о миссии и целях фонда"></textarea>
+                <small class="form-hint" style="display: block; margin-top: 0.3rem; color: #a0aec0; font-size: 0.85rem;">
+                    Опишите основные направления деятельности фонда
+                </small>
+            </div>
+
+            <div class="form-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="phone" class="form-label" style="display: block; margin-bottom: 0.5rem; color: #2d3748; font-weight: 500; font-size: 0.95rem;">
+                        Контактный телефон
+                    </label>
+                    <input type="text" id="phone" name="phone" 
+                           class="form-control"
+                           style="width: 100%; padding: 0.9rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; background-color: #f9f7f7;"
+                           placeholder="+7 (XXX) XXX-XX-XX">
+                </div>
+
+                <div class="form-group">
+                    <label for="url" class="form-label" style="display: block; margin-bottom: 0.5rem; color: #2d3748; font-weight: 500; font-size: 0.95rem;">
+                        Сайт фонда
+                    </label>
+                    <input type="text" id="url" name="url" 
+                           class="form-control"
+                           style="width: 100%; padding: 0.9rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; background-color: #f9f7f7;"
+                           placeholder="example.org">
+                    <small class="form-hint" style="display: block; margin-top: 0.3rem; color: #a0aec0; font-size: 0.85rem;">
+                        Введите домен без https:// (например: fondpomoshi.ru)
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label class="form-label" style="display: block; margin-bottom: 0.8rem; color: #2d3748; font-weight: 500; font-size: 0.95rem;">
+                    Направления деятельности
+                </label>
+                <div class="tags-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem;">
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-animals" name="tags" value="Животные" class="checkbox-input" hidden>
+                        <label for="tag-animals" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">🐾</span>
+                            <span>Животные</span>
+                        </label>
+                    </div>
+                    
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-culture" name="tags" value="Культура" class="checkbox-input" hidden>
+                        <label for="tag-culture" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">🎭</span>
+                            <span>Культура</span>
+                        </label>
+                    </div>
+                    
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-nature" name="tags" value="Природа" class="checkbox-input" hidden>
+                        <label for="tag-nature" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">🌳</span>
+                            <span>Природа</span>
+                        </label>
+                    </div>
+                    
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-children" name="tags" value="Дети" class="checkbox-input" hidden>
+                        <label for="tag-children" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">👶</span>
+                            <span>Дети</span>
+                        </label>
+                    </div>
+                    
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-adults" name="tags" value="Взрослые" class="checkbox-input" hidden>
+                        <label for="tag-adults" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">👨‍👩‍👧‍👦</span>
+                            <span>Взрослые</span>
+                        </label>
+                    </div>
+                    
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-elders" name="tags" value="Пожилые" class="checkbox-input" hidden>
+                        <label for="tag-elders" class="tag-label" style="display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: #f9f7f7; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #2d3748; font-size: 0.9rem; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">👵</span>
+                            <span>Пожилые</span>
+                        </label>
+                    </div>
+                </div>
+                <small class="form-hint" style="display: block; margin-top: 0.8rem; color: #a0aec0; font-size: 0.85rem;">
+                    Выберите одно или несколько направлений деятельности фонда. Чтобы отменить выбор, просто нажмите на выбранную категорию ещё раз.
+                </small>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background-color: #3a86ff; color: white; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span>✨</span>
+                    Создать фонд
+                </button>
+                
+                <a href="/funds" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 500; text-decoration: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background-color: #f9f7f7; color: #2d3748; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span>←</span>
+                    Назад к списку фондов
+                </a>
+            </div>
+        </form>
+
+        <div class="form-footer" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+            <div style="background-color: #f0f7ff; padding: 1rem; border-radius: 8px;">
+                <h4 style="color: #3a86ff; margin-bottom: 0.5rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>💡</span> Подсказки:
+                </h4>
+                <ul style="color: #718096; font-size: 0.9rem; margin: 0; padding-left: 1.2rem;">
+                    <li>Поля, отмеченные *, обязательны для заполнения</li>
+                    <li>Название и описание фонда будут видны всем пользователям</li>
+                    <li>Контакты помогут донатерам связаться с фондом</li>
+                    <li>Теги нужны для фильтрации и поиска фондов</li>
+                    <li>После создания фонд появится в общем списке</li>
+                </ul>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label>Описание</label><br>
-        <textarea name="description" rows="4" required></textarea>
-    </div>
+<style>
+    /* Стили для формы */
+    .form-control:focus {
+        outline: none;
+        border-color: #3a86ff;
+        box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+        background-color: #ffffff;
+    }
+    
+    /* Стили для выбранных тегов */
+    .tag-label.selected {
+        background-color: #e0f2fe !important;
+        border-color: #3a86ff !important;
+        color: #1e4e8c !important;
+        box-shadow: 0 2px 8px rgba(58, 134, 255, 0.15) !important;
+    }
+    
+    .tag-label:hover {
+        background-color: #f0f9ff !important;
+        border-color: #3a86ff !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2a76f0 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(58, 134, 255, 0.25) !important;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #edf2f7 !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Обязательные поля */
+    .form-label[for*="name"]::after,
+    .form-label[for*="description"]::after {
+        content: " *";
+        color: #e53e3e;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .admin-form-container {
+            padding: 1rem 0;
+            margin-top: 1rem;
+        }
+        
+        .admin-form-card {
+            padding: 1.5rem;
+            margin: 0 1rem;
+            border-radius: 12px;
+        }
+        
+        .admin-form-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        
+        .tags-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        .form-actions {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        
+        .form-actions .btn {
+            width: 100% !important;
+            max-width: 300px !important;
+            text-align: center !important;
+            justify-content: center !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .tags-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .admin-form-card {
+            padding: 1rem;
+        }
+    }
+</style>
 
-    <div>
-        <label>Телефон</label><br>
-        <input type="text" name="phone">
-    </div>
-
-    <div>
-        <label>Ссылка</label><br>
-        <input type="text" name="url">
-    </div>
-
-    <div>
-        <label>Теги</label><br>
-        <label><input type="checkbox" name="tags" value="Животные">Животные</label><br>
-        <label><input type="checkbox" name="tags" value="Культура">Культура</label><br>
-        <label><input type="checkbox" name="tags" value="Природа">Природа</label>
-    </div>
-
-    <button type="submit">Создать фонд</button>
-</form>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Скрипт загружен, инициализируем теги...");
+    
+    // Упрощенный подход - полностью контролируем состояние через клик
+    const tagLabels = document.querySelectorAll('.tag-label');
+    
+    tagLabels.forEach(label => {
+        // Находим связанный чекбокс
+        const checkboxId = label.getAttribute('for');
+        const checkbox = document.getElementById(checkboxId);
+        
+        if (!checkbox) return;
+        
+        // Инициализируем состояние
+        const isChecked = checkbox.checked || false;
+        checkbox.checked = isChecked;
+        
+        // Устанавливаем начальный стиль
+        if (isChecked) {
+            label.classList.add('selected');
+            console.log("Тег изначально выбран:", label.textContent.trim());
+        }
+        
+        // Обработчик клика по метке
+        label.addEventListener('click', function(e) {
+            // Предотвращаем все стандартное поведение
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Получаем текущее состояние
+            const wasChecked = checkbox.checked;
+            console.log("Клик по тегу:", this.textContent.trim(), "было checked:", wasChecked);
+            
+            // Меняем состояние на противоположное
+            const newState = !wasChecked;
+            checkbox.checked = newState;
+            
+            // Обновляем визуальное состояние
+            if (newState) {
+                this.classList.add('selected');
+                console.log("Добавили класс 'selected', новое состояние: checked");
+            } else {
+                this.classList.remove('selected');
+                console.log("Удалили класс 'selected', новое состояние: unchecked");
+            }
+            
+            // Небольшая анимация для обратной связи
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 100);
+            
+            // Принудительно вызываем событие change для чекбокса
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Гарантируем, что состояние сохранилось
+            console.log("Финальное состояние checkbox.checked:", checkbox.checked);
+            
+            return false;
+        });
+    });
+    
+    // ВАЖНО: Удаляем все обработчики change на чекбоксах, которые могут мешать
+    const checkboxes = document.querySelectorAll('.checkbox-input');
+    checkboxes.forEach(checkbox => {
+        // Создаем клон без обработчиков событий
+        const clone = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(clone, checkbox);
+    });
+    
+    // Валидация формы
+    const form = document.querySelector('.admin-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const nameInput = document.getElementById('name');
+            const descriptionInput = document.getElementById('description');
+            let isValid = true;
+            
+            // Сброс ошибок
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.style.borderColor = '#e2e8f0';
+            });
+            
+            // Проверка названия
+            if (!nameInput.value.trim()) {
+                nameInput.style.borderColor = '#e53e3e';
+                isValid = false;
+            }
+            
+            // Проверка описания
+            if (!descriptionInput.value.trim()) {
+                descriptionInput.style.borderColor = '#e53e3e';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Пожалуйста, заполните обязательные поля: Название фонда и Описание');
+            }
+            
+            // Логируем состояние чекбоксов перед отправкой
+            console.log("=== Состояние перед отправкой формы ===");
+            const selectedTags = [];
+            document.querySelectorAll('.checkbox-input').forEach(cb => {
+                if (cb.checked) {
+                    const label = document.querySelector(`label[for="${cb.id}"]`);
+                    if (label) {
+                        selectedTags.push(label.textContent.trim());
+                    }
+                }
+            });
+            console.log("Выбранные теги:", selectedTags);
+        });
+    }
+    
+    // Подсветка обязательных полей при фокусе
+    const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
+    requiredInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#3a86ff';
+            this.style.boxShadow = '0 0 0 3px rgba(58, 134, 255, 0.15)';
+            this.style.backgroundColor = '#ffffff';
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.style.borderColor = '#e53e3e';
+                this.style.boxShadow = 'none';
+            } else {
+                this.style.borderColor = '#e2e8f0';
+                this.style.boxShadow = 'none';
+                this.style.backgroundColor = '#f9f7f7';
+            }
+        });
+    });
+    
+    console.log("Инициализация завершена");
+});
+</script>
 {% endblock %}

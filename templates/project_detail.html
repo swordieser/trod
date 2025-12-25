@@ -1,22 +1,317 @@
 {% extends "base.html" %}
+
+{% block title %}{{ project.title }} | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>{{ project.title }}</h2>
-<p>{{ project.city }}</p><br/>
-<p>{{ project.end_date }}</p><br/>
-<p>{{ project.main_text }}</p><br/>
-<p>{{ project.description }}</p><br/>
+<div class="project-detail-container">
+    <!-- Навигация назад -->
+    <div style="margin-bottom: 1.5rem;">
+        <a href="/projects" style="color: #3a86ff; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+            ← Назад к проектам
+        </a>
+    </div>
 
-<p>
-Фонд: <strong>{{ project.fund.name }}</strong><br>
-Собрано: {{ project.collected_amount }} / {{ project.goal_amount }}
-</p>
+    <!-- Основная информация о проекте -->
+    <div class="project-main-card">
+        <div class="project-main-header">
+            <h1 style="font-size: 2.2rem; color: #2d3748; margin-bottom: 0.8rem;">{{ project.title }}</h1>
+            
+            <div class="project-meta" style="display: flex; gap: 1.5rem; color: #718096; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">🏙️</span>
+                    <span>{{ project.city or 'Город не указан' }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">📅</span>
+                    <span>Срок: {{ project.end_date or 'Не установлен' }}</span>
+                </div>
+            </div>
+        </div>
 
-<progress value="{{ project.collected_amount }}"
-          max="{{ project.goal_amount }}"></progress>
+        <!-- Прогресс сбора -->
+        <div class="project-progress-section" style="background-color: #f0f7ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+            <div class="progress-stats" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <div>
+                    <div style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Собрано</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #3a86ff;">{{ project.collected_amount }} ₽</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.9rem; color: #718096; margin-bottom: 0.3rem;">Цель</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748;">{{ project.goal_amount }} ₽</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar-large" style="height: 12px; background-color: #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 0.8rem;">
+                {% set progress_percent = (project.collected_amount / project.goal_amount * 100)|round(1) if project.goal_amount > 0 else 0 %}
+                <div class="progress-fill-large" style="height: 100%; width: {{ progress_percent }}%; background: linear-gradient(90deg, #3a86ff, #ffb347); border-radius: 6px;"></div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 1.1rem; font-weight: 600; color: #3a86ff;">
+                    {{ progress_percent }}%
+                </div>
+                {% if project.collected_amount >= project.goal_amount %}
+                <span class="status-badge status-completed" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    🎉 Цель достигнута!
+                </span>
+                {% else %}
+                <div style="color: #718096; font-size: 0.9rem;">
+                    Осталось собрать: {{ project.goal_amount - project.collected_amount }} ₽
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-<h3>Поддержать проект</h3>
-<form method="post" action="/projects/donate/{{ project.id }}">
-    <input type="number" name="amount" min="1" required>
-    <button type="submit">Пожертвовать</button>
-</form>
+        <!-- Информация о фонде -->
+        <div class="fund-info" style="background-color: #ffffff; padding: 1.2rem; border-radius: 10px; margin-bottom: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem;">
+                <div style="width: 50px; height: 50px; background-color: #3a86ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold;">
+                    {{ project.fund.name|first|upper }}
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #718096;">Организатор</div>
+                    <div style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">{{ project.fund.name }}</div>
+                </div>
+            </div>
+            <p style="color: #718096; margin: 0; font-size: 0.95rem;">
+                Благотворительный фонд, реализующий данный проект
+            </p>
+        </div>
+
+        <!-- Основной текст проекта -->
+        <div class="project-content">
+            {% if project.main_text %}
+            <div class="content-section" style="margin-bottom: 2.5rem;">
+                <h2 style="color: #2d3748; margin-bottom: 1rem; font-size: 1.5rem;">О проекте</h2>
+                <div style="color: #4a5568; line-height: 1.7; font-size: 1.05rem; white-space: pre-line;">
+                    {{ project.main_text }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if project.description %}
+            <div class="content-section" style="margin-bottom: 2.5rem;">
+                <h2 style="color: #2d3748; margin-bottom: 1rem; font-size: 1.5rem;">Подробное описание</h2>
+                <div style="color: #4a5568; line-height: 1.7; font-size: 1.05rem; white-space: pre-line;">
+                    {{ project.description }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if not project.main_text and not project.description %}
+            <div class="content-section" style="margin-bottom: 2.5rem; text-align: center; padding: 2rem; background-color: #f9f7f7; border-radius: 10px;">
+                <div style="font-size: 3rem; color: #e2e8f0; margin-bottom: 1rem;">📄</div>
+                <h3 style="color: #2d3748; margin-bottom: 0.5rem;">Описание отсутствует</h3>
+                <p style="color: #718096;">
+                    Детальное описание проекта пока не добавлено организатором
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Кнопка поддержки -->
+        {% if project.collected_amount < project.goal_amount %}
+        <div class="support-section" style="background: linear-gradient(135deg, #3a86ff 0%, #ffb347 100%); padding: 2.5rem; border-radius: 16px; margin-top: 2.5rem; text-align: center; color: white;">
+            <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: white;">Хотите помочь этому проекту?</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Ваша поддержка поможет изменить жизни к лучшему. Каждая сумма имеет значение!
+            </p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                {% if user %}
+                <a href="/projects/donate/{{ project.id }}" class="btn" style="background-color: white; color: #3a86ff; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 600; border-radius: 10px; text-decoration: none;">
+                    💝 Поддержать проект
+                </a>
+                <a href="#project-info" class="btn" style="background-color: rgba(255, 255, 255, 0.2); color: white; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.3);">
+                    📋 Узнать больше
+                </a>
+                {% else %}
+                <a href="/auth/login" class="btn" style="background-color: white; color: #3a86ff; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 600; border-radius: 10px; text-decoration: none;">
+                    🔒 Войти для поддержки
+                </a>
+                <a href="/auth/register" class="btn" style="background-color: rgba(255, 255, 255, 0.2); color: white; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.3);">
+                    📝 Зарегистрироваться
+                </a>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">100%</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">прозрачность</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">0%</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">комиссия</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">🔒</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">безопасно</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Быстрые суммы пожертвований -->
+        {% if user %}
+        <div class="quick-donations" style="margin-top: 2rem; padding: 1.5rem; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <h3 style="color: #2d3748; margin-bottom: 1rem; text-align: center;">Быстрая поддержка</h3>
+            <p style="color: #718096; text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                Выберите сумму для быстрого пожертвования
+            </p>
+            
+            <form method="post" action="/projects/donate/{{ project.id }}" style="text-align: center;">
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <button type="submit" name="amount" value="100" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">
+                        100 ₽
+                    </button>
+                    <button type="submit" name="amount" value="500" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">
+                        500 ₽
+                    </button>
+                    <button type="submit" name="amount" value="1000" class="btn btn-primary" style="padding: 0.8rem 1.5rem;">
+                        1 000 ₽
+                    </button>
+                    <button type="submit" name="amount" value="5000" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">
+                        5 000 ₽
+                    </button>
+                </div>
+                <p style="color: #a0aec0; font-size: 0.85rem; text-align: center;">
+                    Или <a href="/projects/donate/{{ project.id }}" style="color: #3a86ff;">укажите свою сумму</a>
+                </p>
+            </form>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <!-- Проект завершен -->
+        <div class="project-completed" style="background-color: #d1fae5; color: #065f46; padding: 2.5rem; border-radius: 16px; margin-top: 2.5rem; text-align: center; border: 1px solid #68d391;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 0.8rem; color: #065f46;">Проект завершен успешно!</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Благодаря поддержке {{ project.collected_amount|int }} участников цель проекта достигнута!
+            </p>
+            
+            <div style="background-color: rgba(104, 211, 145, 0.2); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.8rem; font-weight: 700;">{{ progress_percent|int }}%</div>
+                        <div style="font-size: 0.9rem;">цели достигнуто</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.8rem; font-weight: 700;">{{ project.collected_amount|int }} ₽</div>
+                        <div style="font-size: 0.9rem;">собрано всего</div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="color: #047857; font-size: 1rem; margin-bottom: 2rem;">
+                💖 Спасибо каждому, кто принял участие в этом проекте!
+            </p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/projects" class="btn btn-primary" style="background-color: #68d391; border-color: #68d391; color: #065f46; padding: 1rem 2rem; font-weight: 600;">
+                    🌟 Найти другие проекты
+                </a>
+                <a href="/funds" class="btn btn-secondary" style="color: #065f46; border-color: #065f46; padding: 1rem 2rem;">
+                    🏛️ Исследовать фонды
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Дополнительная информация -->
+        <div id="project-info" class="additional-info" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+            <h3 style="color: #2d3748; margin-bottom: 1.5rem; font-size: 1.3rem;">Дополнительная информация</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div style="background-color: #f9f7f7; padding: 1.2rem; border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                        <div style="font-size: 1.5rem;">📊</div>
+                        <div style="font-weight: 600; color: #2d3748;">Статус проекта</div>
+                    </div>
+                    <p style="color: #718096; font-size: 0.95rem; margin: 0;">
+                        {% if project.collected_amount >= project.goal_amount %}
+                        Завершен успешно
+                        {% else %}
+                        Активный сбор средств
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div style="background-color: #f9f7f7; padding: 1.2rem; border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                        <div style="font-size: 1.5rem;">🏛️</div>
+                        <div style="font-weight: 600; color: #2d3748;">Организатор</div>
+                    </div>
+                    <p style="color: #718096; font-size: 0.95rem; margin: 0;">
+                        {{ project.fund.name }}
+                    </p>
+                </div>
+                
+                <div style="background-color: #f9f7f7; padding: 1.2rem; border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem;">
+                        <div style="font-size: 1.5rem;">📍</div>
+                        <div style="font-weight: 600; color: #2d3748;">Локация</div>
+                    </div>
+                    <p style="color: #718096; font-size: 0.95rem; margin: 0;">
+                        {{ project.city or 'Не указано' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .project-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .project-main-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #68d391;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .project-main-card {
+            padding: 1.5rem;
+        }
+        
+        .project-meta {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .support-section {
+            padding: 1.5rem;
+        }
+        
+        .quick-donations {
+            padding: 1.2rem;
+        }
+        
+        .additional-info div {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}

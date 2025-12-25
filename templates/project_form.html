@@ -1,36 +1,380 @@
 {% extends "base.html" %}
 
+{% block title %}Создать проект | Charity Aggregator{% endblock %}
+
 {% block content %}
-<h2>Создать проект</h2>
+<div class="admin-form-container">
+    <div class="admin-form-card">
+        <div class="admin-form-header">
+            <h1 style="color: #2d3748; margin-bottom: 0.5rem;">Создать новый проект</h1>
+            <p style="color: #718096; margin-bottom: 2rem;">
+                Добавьте новый благотворительный проект в систему
+            </p>
+        </div>
 
-<form method="post" action="/admin/projects/new">
-    <div>
-        <label>Название проекта</label><br>
-        <input type="text" name="title" required>
+        <form method="post" action="/admin/projects/new" class="admin-form">
+            <div class="form-group">
+                <label for="title" class="form-label">Название проекта *</label>
+                <input type="text" id="title" name="title" class="form-control" 
+                       required placeholder="Введите название проекта" 
+                       maxlength="200">
+                <small class="form-hint">Максимум 200 символов</small>
+            </div>
+
+            <div class="form-group">
+                <label for="city" class="form-label">Город</label>
+                <input type="text" id="city" name="city" class="form-control" 
+                       placeholder="Например: Москва">
+            </div>
+
+            <div class="form-group">
+                <label for="end_date" class="form-label">Срок завершения</label>
+                <input type="date" id="end_date" name="end_date" class="form-control">
+                <small class="form-hint">Дата окончания сбора средств</small>
+            </div>
+
+            <div class="form-group">
+                <label for="main_text" class="form-label">Краткое описание *</label>
+                <textarea id="main_text" name="main_text" class="form-control" 
+                          rows="3" required placeholder="Краткое описание проекта (будет отображаться в списке проектов)"
+                          maxlength="500"></textarea>
+                <small class="form-hint">Максимум 500 символов. Будет отображаться в карточке проекта</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Подробное описание *</label>
+                <textarea id="description" name="description" class="form-control" 
+                          rows="6" required placeholder="Подробное описание проекта"
+                          maxlength="5000"></textarea>
+                <small class="form-hint">Максимум 5000 символов. Будет отображаться на странице проекта</small>
+            </div>
+
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="goal_amount" class="form-label">Цель сбора (₽) *</label>
+                    <input type="number" id="goal_amount" name="goal_amount" 
+                           class="form-control" min="1" required 
+                           placeholder="Например: 100000.50" step="any">
+                    <small class="form-hint">Минимальная сумма: 1 рубль. Можно указывать дробные числа (например: 1000.50)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="fund_id" class="form-label">Фонд *</label>
+                    <select id="fund_id" name="fund_id" class="form-control" required>
+                        <option value="">— выберите фонд —</option>
+                        {% for fund in funds %}
+                        <option value="{{ fund.id }}">
+                            {{ fund.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-hint">Выберите ответственный фонд</small>
+                </div>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 2.5rem;">
+                    Создать проект
+                </button>
+                <a href="/projects" class="btn btn-secondary" style="padding: 1rem 2rem;">
+                    Отмена
+                </a>
+            </div>
+        </form>
+
+        <div class="form-footer" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+            <div style="background-color: #f0f7ff; padding: 1rem; border-radius: 8px;">
+                <h4 style="color: #3a86ff; margin-bottom: 0.5rem; font-size: 1rem;">💡 Подсказки:</h4>
+                <ul style="color: #718096; font-size: 0.9rem; margin: 0; padding-left: 1.2rem;">
+                    <li>Поля, отмеченные *, обязательны для заполнения</li>
+                    <li>Цель сбора может быть дробным числом (например: 1000.50 руб.)</li>
+                    <li>Краткое описание будет видно в списке проектов</li>
+                    <li>Подробное описание отобразится на странице проекта</li>
+                    <li>После создания проект появится в общем списке</li>
+                </ul>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label>Описание</label><br>
-        <textarea name="description" rows="4" required></textarea>
-    </div>
+<style>
+    .admin-form-container {
+        display: flex;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .admin-form-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 800px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .admin-form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .admin-form {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f9f7f7;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3a86ff;
+        box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+        background-color: #ffffff;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23718096' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+        padding-right: 2.5rem;
+    }
+    
+    .form-hint {
+        display: block;
+        margin-top: 0.3rem;
+        color: #a0aec0;
+        font-size: 0.85rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .admin-form-card {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
 
-    <div>
-        <label>Цель сбора</label><br>
-        <input type="number" name="goal_amount" min="1" required>
-    </div>
-
-    <div>
-        <label>Фонд</label><br>
-        <select name="fund_id" required>
-            <option value="">— выберите фонд —</option>
-            {% for fund in funds %}
-            <option value="{{ fund.id }}">
-                {{ fund.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <button type="submit">Создать проект</button>
-</form>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем минимальную дату сегодня
+    const today = new Date().toISOString().split('T')[0];
+    const endDateInput = document.getElementById('end_date');
+    
+    if (endDateInput) {
+        endDateInput.min = today;
+    }
+    
+    // Подсчет символов для textarea
+    const mainText = document.getElementById('main_text');
+    const description = document.getElementById('description');
+    
+    function setupCharacterCounter(textarea, maxLength) {
+        if (!textarea) return;
+        
+        const hint = textarea.nextElementSibling;
+        const originalHint = hint.textContent;
+        
+        function updateCounter() {
+            const remaining = maxLength - textarea.value.length;
+            hint.textContent = `${originalHint} (осталось ${remaining} символов)`;
+            
+            if (remaining < 0) {
+                hint.style.color = '#e53e3e';
+            } else if (remaining < 50) {
+                hint.style.color = '#ffb347';
+            } else {
+                hint.style.color = '#a0aec0';
+            }
+        }
+        
+        textarea.addEventListener('input', updateCounter);
+        updateCounter(); // Инициализация
+    }
+    
+    if (mainText) setupCharacterCounter(mainText, 500);
+    if (description) setupCharacterCounter(description, 5000);
+    
+    // Валидация формы
+    const form = document.querySelector('.admin-form');
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+        
+        // Проверка цели сбора (разрешены дробные числа)
+        const goalAmount = document.getElementById('goal_amount');
+        if (goalAmount) {
+            const value = parseFloat(goalAmount.value);
+            
+            // Проверяем, что это валидное число
+            if (isNaN(value)) {
+                alert('Введите корректную сумму. Например: 1000 или 1000.50');
+                goalAmount.focus();
+                valid = false;
+            } 
+            // Проверяем, что число больше 1
+            else if (value <= 1) {
+                alert('Цель сбора должна быть больше 1 рубля');
+                goalAmount.focus();
+                valid = false;
+            }
+            // Проверяем, что не отрицательное
+            else if (value < 0) {
+                alert('Цель сбора не может быть отрицательной');
+                goalAmount.focus();
+                valid = false;
+            }
+            // Округляем до 2 знаков после запятой для красоты
+            else {
+                goalAmount.value = Math.round(value * 100) / 100;
+            }
+        }
+        
+        // Проверка выбора фонда
+        const fundSelect = document.getElementById('fund_id');
+        if (fundSelect && !fundSelect.value) {
+            alert('Пожалуйста, выберите фонд');
+            fundSelect.focus();
+            valid = false;
+        }
+        
+        // Проверка даты окончания
+        const endDate = document.getElementById('end_date');
+        if (endDate && endDate.value) {
+            const selectedDate = new Date(endDate.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                alert('Дата окончания не может быть в прошлом');
+                endDate.focus();
+                valid = false;
+            }
+        }
+        
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+    
+    // Форматирование ввода суммы с двумя знаками после запятой
+    const goalAmountInput = document.getElementById('goal_amount');
+    if (goalAmountInput) {
+        goalAmountInput.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                // Округляем до 2 знаков после запятой
+                this.value = Math.round(value * 100) / 100;
+                
+                // Автоматически добавляем .00 если число целое
+                if (Number.isInteger(value)) {
+                    this.value = value.toFixed(2);
+                }
+            }
+        });
+        
+        // Разрешаем ввод только чисел и точки
+        goalAmountInput.addEventListener('keypress', function(e) {
+            const charCode = e.which ? e.which : e.keyCode;
+            const char = String.fromCharCode(charCode);
+            
+            // Разрешаем цифры, точку и управляющие клавиши
+            if (!(/[0-9.]/.test(char)) && charCode > 31) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Проверяем, что точка только одна
+            if (char === '.' && this.value.includes('.')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Проверка при вводе
+        goalAmountInput.addEventListener('input', function() {
+            const value = this.value;
+            
+            // Удаляем все нецифровые символы кроме точки
+            let cleaned = value.replace(/[^\d.]/g, '');
+            
+            // Удаляем лишние точки (оставляем только первую)
+            const parts = cleaned.split('.');
+            if (parts.length > 2) {
+                cleaned = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Ограничиваем дробную часть 2 знаками
+            if (cleaned.includes('.')) {
+                const decimalParts = cleaned.split('.');
+                if (decimalParts[1].length > 2) {
+                    cleaned = decimalParts[0] + '.' + decimalParts[1].substring(0, 2);
+                }
+            }
+            
+            if (cleaned !== value) {
+                this.value = cleaned;
+            }
+            
+            // Подсветка поля если значение некорректно
+            const numValue = parseFloat(cleaned);
+            if (cleaned && (isNaN(numValue) || numValue <= 1)) {
+                this.style.borderColor = '#e53e3e';
+                this.style.boxShadow = '0 0 0 1px #e53e3e';
+            } else {
+                this.style.borderColor = '#e2e8f0';
+                this.style.boxShadow = 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
